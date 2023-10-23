@@ -40,6 +40,26 @@ class PositionTracker(Sensor):
 
         return [self.x, self.y, self.z]
 
+
+class StatusTracker(Sensor):
+    def __init__(self, add_noise=True):
+        super(PositionTracker, self).__init__()
+
+
+    def attach_to(self, drone):
+        self.drone = drone
+        self.drone.attach_sensor(self)
+
+    def sense(self):
+        state = {}
+        state['linear_position'] = lambda: np.array([self.drone.x, self.drone.y, self.drone.z]).reshape(3, 1)
+        state['angular_position'] = lambda: np.array([self.drone.phi, self.drone.theta, self.drone.psi]).reshape(3, 1)
+        state['linear_velocity'] = lambda: np.array([self.drone.vx, self.drone.vy, self.drone.vz]).reshape(3, 1)
+        state['angular_velocity'] = lambda: np.array([self.drone.p, self.drone.q, self.drone.r]).reshape(3, 1)
+        return state
+
+
+
 class IMU(Sensor):
     def __init__(self, add_noise=True):
         super(IMU, self).__init__()
@@ -66,7 +86,7 @@ class IMU(Sensor):
     def attach_to(self, drone):
         self.drone = drone
         self.drone.attach_sensor(self)
-        
+
     def sense(self):
         if self.add_noise:
             # If noise is added, gyro's drift has a random walk.
