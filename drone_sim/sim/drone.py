@@ -221,7 +221,7 @@ class Drone:
         self.vy = vel[1][0]
         if self.z<=0 and vel[2][0]<0:
             self.vz=0
-            self.z=0.01
+            self.z=0
             print("goon")
         else:
             self.vz = vel[2][0]
@@ -232,7 +232,7 @@ class Drone:
         self.x = position[0][0]
         self.y = position[1][0]
         if (position[2][0]<=0):
-            self.z =0.01
+            self.z =0
             print("ker")
         else:
             self.z = position[2][0]
