@@ -29,7 +29,7 @@ class Drone:
 
         # Inertia Matrix
         self.inertia = np.diag([IXX, IYY, IZZ])
-        
+
         # Drag Matrix
         self.drag = np.diag([AX, AY, AZ])
 
@@ -113,7 +113,7 @@ class Drone:
         self.p, self.q, self.r = 0, 0, 0
 
         print("LOG: The Drone is dead. Reset Simulation")
-    
+
     def step(self, velocities):
         """Function to step, i.e. set the angular velocties, to be called externally by the user"""
 
@@ -151,7 +151,7 @@ class Drone:
         )
 
         self.R = self.R_phi @ self.R_theta @ self.R_psi
-        
+
         self.W =np.array(
             [
                 [1, 0, -s(self.theta)],
@@ -184,6 +184,7 @@ class Drone:
         """Uses the omegas to update acceleration"""
         self.acceleration = self.gravity + (1/MASS)*self.R@self.thrust + (1/MASS)*self.fd
 
+
     def __update_omega_dot__(self):
         """Updates omega_dot to calculate final state vector"""
         ang_vel = self.angular_velocity()
@@ -191,15 +192,15 @@ class Drone:
         MM = self.torque - cross_pdt
 
         w_dot = np.linalg.inv(self.inertia)@MM
-        
+
         self.p = w_dot[0][0]
         self.q = w_dot[1][0]
         self.r = w_dot[2][0]
-    
+
     def update(self):
         """This function is called everytime to update the state of the system"""
         # At this point, we assume that the angular velocities are set and hence we go on to update
-        # simulation step. This will finally be updated as a gym environment, hence we can easily call the 
+        # simulation step. This will finally be updated as a gym environment, hence we can easily call the
         # functions defined in the gym environment to update the velocities.
         self.__update_transformations__()
         self.__update_thrust_and_torque__()
@@ -218,14 +219,23 @@ class Drone:
         # set the velocities
         self.vx = vel[0][0]
         self.vy = vel[1][0]
-        self.vz = vel[2][0]
+        if self.z<=0 and vel[2][0]<0:
+            self.vz=0
+            self.z=0.01
+            print("goon")
+        else:
+            self.vz = vel[2][0]
 
         position = self.linear_position() + self.linear_velocity() * DT
 
         # set the positions
         self.x = position[0][0]
         self.y = position[1][0]
-        self.z = position[2][0]
+        if (position[2][0]<=0):
+            self.z =0.01
+            print("ker")
+        else:
+            self.z = position[2][0]
 
     #!--- Helper functions ---!
     def normalise_theta(self, angle):
@@ -244,7 +254,7 @@ class Drone:
     def attach_sensor(self, sensor):
         """This is called when a sensor is added to the drone"""
         self.sensors.append(sensor)
-    
+
     def list_sensors(self):
         """Can be used to list the sensors placed on the drone"""
         for sensor in self.sensors:
@@ -259,7 +269,7 @@ class Drone:
     def death(self):
         """This function is used to terminate the simulation. This can be enabled or disabled in the constuctor
         If a death condition is reached, the simulation is reset."""
-        
+
         # Condition 1: If the roll or pitch is more than 60 degrees, we reset the simulation
         if abs(self.phi) > np.radians(60.0) or abs(self.theta) > np.radians(60):
             self.__reset__()

@@ -43,7 +43,7 @@ class PositionTracker(Sensor):
 
 class StatusTracker(Sensor):
     def __init__(self, add_noise=True):
-        super(PositionTracker, self).__init__()
+        super(StatusTracker, self).__init__()
 
 
     def attach_to(self, drone):
@@ -94,9 +94,9 @@ class IMU(Sensor):
             wy = self.drone.q + self.gyroy_bias
             wz = self.drone.r + self.gyroz_bias
 
-            ax = self.drone.acceleration[0] + IMU_MEANS[0] + np.random.randn() * IMU_STDDEV[0]
-            ay = self.drone.acceleration[1] + IMU_MEANS[1] + np.random.randn() * IMU_STDDEV[1]
-            az = self.drone.acceleration[2] + IMU_MEANS[2] + np.random.randn() * IMU_STDDEV[2]
+            ax = self.drone.acceleration[0]
+            ay = self.drone.acceleration[1]
+            az = self.drone.acceleration[2]
 
             # Update bias
             self.update_bias()
